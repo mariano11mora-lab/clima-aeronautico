@@ -1,5 +1,6 @@
 const API_KEY = "RcIUo_t51KXc3pM-t2jA3XfanUvk-NB94lROeL-3u2I";
 
+// 🔍 BUSCAR CLIMA
 async function buscarClima() {
   const icao = document.getElementById("icao").value.toUpperCase();
 
@@ -22,16 +23,17 @@ async function buscarClima() {
 
     const resultado = traducirMetar(metarData.raw);
 
-    // 📄 TEXTO METAR
+    // 📄 METAR traducido
     metarEl.textContent = resultado.texto;
 
-    // 🎯 ICONO SEGÚN CLIMA
+    // 🎯 ICONO GENERAL
     let icono = "☀️";
-
     if (metarData.raw.includes("TS")) icono = "⛈️";
     else if (metarData.raw.includes("RA")) icono = "🌧️";
     else if (metarData.raw.includes("FG")) icono = "🌫️";
     else if (metarData.raw.includes("OVC") || metarData.raw.includes("BKN")) icono = "☁️";
+
+    iconoEl.textContent = icono;
 
     // 🎯 TEXTO STATUS
     let texto =
@@ -40,19 +42,32 @@ async function buscarClima() {
       resultado.categoria === "IFR" ? "IFR - No apto" :
       "LIFR - No apto";
 
-    // 👉 aplicar
-    iconoEl.textContent = icono;
     textoStatusEl.textContent = texto;
 
-    // 🎨 COLOR SEMÁFORO
-    statusEl.style.background = "linear-gradient(135deg, #00c853, #009624)";
-      resultado.categoria === "VFR" ? "#0a3" :
-      resultado.categoria === "MVFR" ? "#cc0" :
-      resultado.categoria === "IFR" ? "#c00" :
-      "#800";
+    // 🎨 COLOR SEGÚN CONDICIÓN
+    if (resultado.categoria === "VFR") {
+      statusEl.style.background = "linear-gradient(135deg, #00c853, #009624)";
+    } else if (resultado.categoria === "MVFR") {
+      statusEl.style.background = "linear-gradient(135deg, #ffd600, #ffab00)";
+    } else {
+      statusEl.style.background = "linear-gradient(135deg, #d50000, #9b0000)";
+    }
+
+    // 📊 RESUMEN
+    document.getElementById("resumen").innerHTML = `
+      <div class="item"><span>🌬️</span>${resultado.viento || "-"}</div>
+      <div class="item"><span>👁️</span>${resultado.visibilidad || "-"}</div>
+      <div class="item"><span>☁️</span>${resultado.nubes || "-"}</div>
+      <div class="item"><span>⚠️</span>${resultado.fenomenos || "Sin fenómenos"}</div>
+    `;
 
     // 📄 TAF traducido
     tafEl.textContent = traducirTaf(tafData.raw);
+
+    // ✨ ANIMACIÓN
+    statusEl.classList.remove("update");
+    void statusEl.offsetWidth;
+    statusEl.classList.add("update");
 
   } catch (error) {
     metarEl.textContent = "Error al obtener datos";
@@ -62,29 +77,36 @@ async function buscarClima() {
   }
 }
 
-// ✈️ TRADUCCIÓN METAR
+// ✈️ TRADUCIR METAR
 function traducirMetar(metar) {
   if (!metar) return { texto: "Sin datos", categoria: "DESCONOCIDO" };
 
   const partes = metar.split(" ");
   let resultado = [];
 
-  let visibilidad = 10000;
+  let visibilidad = "";
   let ceiling = 9999;
+  let viento = "";
+  let nubes = "";
+  let fenomenos = "";
 
   partes.forEach(p => {
 
+    // 🌬️ VIENTO
     if (p.includes("KT")) {
       const dir = p.substring(0, 3);
       const vel = parseInt(p.substring(3, 5));
-      resultado.push(`🌬️ Viento: ${dir}° a ${vel} kt`);
+      viento = `${dir}° ${vel}kt`;
+      resultado.push(`🌬️ Viento: ${viento}`);
     }
 
+    // 👁️ VISIBILIDAD
     else if (!isNaN(p)) {
-      visibilidad = parseInt(p);
-      resultado.push(`👁️ Visibilidad: ${visibilidad} m`);
+      visibilidad = `${parseInt(p)} m`;
+      resultado.push(`👁️ Visibilidad: ${visibilidad}`);
     }
 
+    // ☁️ NUBES
     else if (p.match(/(FEW|SCT|BKN|OVC)\d{3}/)) {
       const tipo = p.substring(0, 3);
       const altura = parseInt(p.substring(3)) * 100;
@@ -96,46 +118,44 @@ function traducirMetar(metar) {
         OVC: "Cubierto"
       };
 
+      nubes = `${tipos[tipo]} ${altura} ft`;
+
       if (tipo === "BKN" || tipo === "OVC") {
         ceiling = altura;
       }
 
-      resultado.push(`☁️ ${tipos[tipo]} a ${altura} ft`);
+      resultado.push(`☁️ ${nubes}`);
     }
 
+    // 🌡️ TEMP
     else if (p.includes("/")) {
       const [temp, dew] = p.split("/");
       resultado.push(`🌡️ Temp: ${temp}°C / Rocío: ${dew}°C`);
     }
 
+    // 🔵 PRESIÓN
     else if (p.startsWith("Q")) {
       resultado.push(`🔵 Presión: ${p.substring(1)} hPa`);
     }
 
-    else if (p.includes("RA")) {
-      resultado.push("🌧️ Lluvia");
-    }
-
-    else if (p.includes("TS")) {
-      resultado.push("⛈️ Tormenta");
-    }
-
-    else if (p === "FG") {
-      resultado.push("🌫️ Niebla");
-    }
+    // ⚠️ FENÓMENOS
+    if (p.includes("RA")) fenomenos += "🌧️ ";
+    if (p.includes("TS")) fenomenos += "⛈️ ";
+    if (p === "FG") fenomenos += "🌫️ ";
 
   });
 
-  // 🟢 CLASIFICACIÓN
+  // 🟢 CATEGORÍA
   let categoria = "VFR";
 
-  if (visibilidad < 5000 || ceiling < 1500) categoria = "MVFR";
-  if (visibilidad < 3000 || ceiling < 1000) categoria = "IFR";
-  if (visibilidad < 1000 || ceiling < 500) categoria = "LIFR";
+  const visNum = parseInt(visibilidad) || 10000;
+
+  if (visNum < 5000 || ceiling < 1500) categoria = "MVFR";
+  if (visNum < 3000 || ceiling < 1000) categoria = "IFR";
+  if (visNum < 1000 || ceiling < 500) categoria = "LIFR";
 
   resultado.push(`\n✈️ Condición: ${categoria}`);
 
-  // ✈️ APTO
   let apto = "🟢 Apto";
   if (categoria === "IFR" || categoria === "LIFR") apto = "🔴 No apto VFR";
   else if (categoria === "MVFR") apto = "🟡 Precaución";
@@ -144,11 +164,15 @@ function traducirMetar(metar) {
 
   return {
     texto: resultado.join("\n"),
-    categoria
+    categoria,
+    viento,
+    visibilidad,
+    nubes,
+    fenomenos
   };
 }
 
-// 📄 TRADUCCIÓN TAF
+// 📄 TRADUCIR TAF
 function traducirTaf(taf) {
   if (!taf) return "Sin datos";
 
@@ -160,9 +184,8 @@ function traducirTaf(taf) {
     .replace(/TS/g, "⛈️ Tormenta")
     .replace(/FG/g, "🌫️ Niebla");
 }
-statusEl.classList.remove("update");
-void statusEl.offsetWidth; // reinicia animación
-statusEl.classList.add("update");
+
+// ⌨️ ENTER PARA BUSCAR
 document.getElementById("icao").addEventListener("keypress", function(e) {
   if (e.key === "Enter") {
     buscarClima();
