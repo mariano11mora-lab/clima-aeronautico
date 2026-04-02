@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Clima Aeronáutico</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="top">
+      <input id="icao" placeholder="SAEZ" />
+      <button onclick="buscarClima()">Buscar</button>
+    </div>
+
+    <div id="status" class="card status">
+      <div id="icono">✈️</div>
+      <div id="textoStatus">Esperando datos...</div>
+    </div>
+
+    <div class="card">
+      <h3>METAR</h3>
+      <pre id="metar"></pre>
+    </div>
+
+    <div class="card">
+      <h3>TAF</h3>
+      <pre id="taf"></pre>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
