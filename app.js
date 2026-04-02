@@ -1,4 +1,4 @@
-const API_KEY = "TU_API_KEY_AQUI";
+const API_KEY = "RcIUo_t51KXc3pM-t2jA3XfanUvk-NB94lROeL-3u2I";
 
 // 🔍 BUSCAR CLIMA
 async function buscarClima() {
@@ -21,7 +21,11 @@ async function buscarClima() {
     const tafRes = await fetch(`https://avwx.rest/api/taf/${icao}?token=${API_KEY}`);
     const tafData = await tafRes.json();
 
-    const resultado = traducirMetar(metarData.raw);
+    if (!metarData.raw) {
+  throw new Error("METAR inválido o API key incorrecta");
+}
+
+const resultado = traducirMetar(metarData.raw);
 
     // 📄 METAR traducido
     metarEl.textContent = resultado.texto;
