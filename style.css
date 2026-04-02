@@ -142,3 +142,46 @@ pre {
   font-size: 20px;
   margin-bottom: 4px;
 }
+#resumen {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.item {
+  background: rgba(255,255,255,0.08);
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#alertas {
+  margin-top: 15px;
+}
+
+.alerta {
+  background: #ff5252;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.ok {
+  background: #00c853;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+#icono {
+  font-size: 42px;
+}
+.status {
+  text-align: center;
+  padding: 15px;
+  border-radius: 16px;
+}

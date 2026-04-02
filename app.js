@@ -1,4 +1,4 @@
-const API_KEY = "RcIUo_t51KXc3pM-t2jA3XfanUvk-NB94lROeL-3u2I";
+const API_KEY = "TU_API_KEY_AQUI";
 
 // 🔍 BUSCAR CLIMA
 async function buscarClima() {
@@ -60,6 +60,12 @@ async function buscarClima() {
       <div class="item"><span>☁️</span>${resultado.nubes || "-"}</div>
       <div class="item"><span>⚠️</span>${resultado.fenomenos || "Sin fenómenos"}</div>
     `;
+
+    // 🚨 ALERTAS
+    document.getElementById("alertas").innerHTML =
+      resultado.alertas.length
+        ? resultado.alertas.map(a => `<div class="alerta">${a}</div>`).join("")
+        : "<div class='ok'>✅ Sin alertas</div>";
 
     // 📄 TAF traducido
     tafEl.textContent = traducirTaf(tafData.raw);
@@ -138,16 +144,14 @@ function traducirMetar(metar) {
       resultado.push(`🔵 Presión: ${p.substring(1)} hPa`);
     }
 
-    // ⚠️ FENÓMENOS
+    // ⚠️ FENÓMENOS (independiente)
     if (p.includes("RA")) fenomenos += "🌧️ ";
     if (p.includes("TS")) fenomenos += "⛈️ ";
     if (p === "FG") fenomenos += "🌫️ ";
-
   });
 
   // 🟢 CATEGORÍA
   let categoria = "VFR";
-
   const visNum = parseInt(visibilidad) || 10000;
 
   if (visNum < 5000 || ceiling < 1500) categoria = "MVFR";
@@ -162,13 +166,29 @@ function traducirMetar(metar) {
 
   resultado.push(apto);
 
+  // 🚨 ALERTAS
+  let alertas = [];
+
+  if (visNum < 3000) alertas.push("🚨 Visibilidad crítica");
+  else if (visNum < 5000) alertas.push("⚠️ Visibilidad reducida");
+
+  if (ceiling < 500) alertas.push("🚨 Techo muy bajo");
+  else if (ceiling < 1000) alertas.push("⚠️ Techo bajo");
+
+  if (fenomenos.includes("⛈️")) alertas.push("⛈️ Tormenta activa");
+  if (fenomenos.includes("🌫️")) alertas.push("🌫️ Niebla presente");
+
+  const vientoNum = parseInt(viento.split(" ")[1]) || 0;
+  if (vientoNum > 25) alertas.push("💨 Viento fuerte");
+
   return {
     texto: resultado.join("\n"),
     categoria,
     viento,
     visibilidad,
     nubes,
-    fenomenos
+    fenomenos,
+    alertas
   };
 }
 
