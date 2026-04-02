@@ -163,3 +163,8 @@ function traducirTaf(taf) {
 statusEl.classList.remove("update");
 void statusEl.offsetWidth; // reinicia animación
 statusEl.classList.add("update");
+document.getElementById("icao").addEventListener("keypress", function(e) {
+  if (e.key === "Enter") {
+    buscarClima();
+  }
+});
