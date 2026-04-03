@@ -254,11 +254,7 @@ function obtenerColorCategoria(cat) {
   }
 }
 // ==========================
-// ⭐ FAVORITOS
-// ==========================
-
-// ==========================
-// ⭐ FAVORITOS PRO
+// ⭐ FAVORITOS SIMPLE
 // ==========================
 
 function getFavoritos() {
@@ -269,62 +265,33 @@ function guardarFavoritos(favs) {
   localStorage.setItem("favoritos", JSON.stringify(favs));
 }
 
-function toggleFavorito() {
+function agregarFavorito() {
   const icao = document.getElementById("icao").value.toUpperCase();
   if (!icao) return;
 
   let favs = getFavoritos();
 
-  if (favs.includes(icao)) {
-    favs = favs.filter(f => f !== icao);
-  } else {
+  if (!favs.includes(icao)) {
     favs.push(icao);
+    guardarFavoritos(favs);
+    renderFavoritos();
   }
-
-  guardarFavoritos(favs);
-  renderFavoritos();
-  actualizarBotonFav();
-}
-
-function eliminarFavorito(icao) {
-  let favs = getFavoritos().filter(f => f !== icao);
-  guardarFavoritos(favs);
-  renderFavoritos();
-  actualizarBotonFav();
 }
 
 function renderFavoritos() {
   const cont = document.getElementById("favoritos");
-  let favs = getFavoritos();
-
-  favs.sort();
-
-  cont.innerHTML = `
-    <div class="fav-list">
-      ${favs.map(f => `
-        <div class="fav-item">
-          <span onclick="setICAO('${f}')">✈️ ${f}</span>
-          <span onclick="eliminarFavorito('${f}')" style="cursor:pointer;">❌</span>
-        </div>
-      `).join("")}
-    </div>
-  `;
-}
-
-function setICAO(codigo) {
-  document.getElementById("icao").value = codigo;
-  buscarClima();
-  actualizarBotonFav();
-}
-
-function actualizarBotonFav() {
-  const icao = document.getElementById("icao").value.toUpperCase();
   const favs = getFavoritos();
-  const btn = document.getElementById("btnFav");
 
-  if (!btn) return;
+  cont.innerHTML = favs.map(f => `
+    <div class="fav-item" onclick="seleccionarFavorito('${f}')">
+      ✈️ ${f}
+    </div>
+  `).join("");
+}
 
-  btn.innerText = favs.includes(icao) ? "★" : "☆";
+function seleccionarFavorito(icao) {
+  document.getElementById("icao").value = icao;
+  buscarClima();
 }
 
 renderFavoritos();
