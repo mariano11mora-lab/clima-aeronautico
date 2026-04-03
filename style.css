@@ -278,3 +278,26 @@ pre {
 .status {
   margin-top: 20px;
 }
+.favoritos {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+
+.fav-list {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.fav-item {
+  background: #1e1e1e;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.fav-item:hover {
+  background: #2a2a2a;
+}

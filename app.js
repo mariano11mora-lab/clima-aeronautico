@@ -3,6 +3,7 @@ const API_KEY = "RcIUo_t51KXc3pM-t2jA3XfanUvk-NB94lROeL-3u2I";
 // 🔍 BUSCAR CLIMA
 async function buscarClima() {
   const icao = document.getElementById("icao").value.toUpperCase();
+  agregarFavorito(icao);
 
   const metarEl = document.getElementById("metar");
   const tafEl = document.getElementById("taf");
@@ -29,24 +30,8 @@ const resultado = traducirMetar(metarData.raw);
 
     // 📄 METAR traducido
     metarEl.innerHTML = `
-  <div style="
-    display:inline-block;
-    padding:6px 12px;
-    border-radius:12px;
-    font-weight:bold;
-    margin-bottom:10px;
-    background:${
-      resultado.categoria === "VFR" ? "limegreen" :
-      resultado.categoria === "MVFR" ? "gold" :
-      resultado.categoria === "IFR" ? "red" :
-      "purple"
-    };
-    color:black;
-  ">
+ <pre style="white-space: pre-wrap; margin:0;">
     ${resultado.categoria}
-  </div>
-
-  <pre style="white-space: pre-wrap; margin:0;">
 ${resultado.texto}
   </pre>
 `;
@@ -268,3 +253,47 @@ function obtenerColorCategoria(cat) {
     default: return "white";
   }
 }
+// ==========================
+// ⭐ FAVORITOS
+// ==========================
+
+function getFavoritos() {
+  return JSON.parse(localStorage.getItem("favoritos")) || [];
+}
+
+function agregarFavorito(icao) {
+  let favs = getFavoritos();
+
+  if (!favs.includes(icao)) {
+    favs.push(icao);
+    localStorage.setItem("favoritos", JSON.stringify(favs));
+  }
+
+  renderFavoritos();
+}
+
+function renderFavoritos() {
+  const cont = document.getElementById("favoritos");
+  const favs = getFavoritos();
+
+  if (favs.length === 0) {
+    cont.innerHTML = "";
+    return;
+  }
+
+  cont.innerHTML = `
+    <div class="fav-list">
+      ${favs.map(f => `
+        <div class="fav-item" onclick="setICAO('${f}')">
+          ✈️ ${f}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function setICAO(codigo) {
+  document.getElementById("icao").value = codigo;
+  buscarClima();
+}
+renderFavoritos();
