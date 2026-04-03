@@ -52,38 +52,12 @@ function mostrarDatos(metar, taf) {
     ? `${metar.clouds[0].type} ${metar.clouds[0].altitude} ft`
     : "N/D";
 
-  // =======================
-  // LÓGICA VFR / IFR
-  // =======================
 // =======================
-// LÓGICA VFR / IFR MEJORADA
+// STATUS SIMPLE
 // =======================
-
-// VISIBILIDAD
-let vis = metar.visibility?.value;
-
-if (!vis) {
-  // fallback si no viene visibilidad clara
-  vis = 9999;
-}
-
-// CEILING (solo BKN / OVC cuentan)
-let ceiling = null;
-
-if (metar.clouds && metar.clouds.length > 0) {
-  const capas = metar.clouds.filter(c =>
-    c.type === "BKN" || c.type === "OVC"
-  );
-
-  if (capas.length > 0) {
-    ceiling = capas[0].altitude;
-  }
-}
-
-// Si no hay techo → lo consideramos alto (cielo OK)
-if (!ceiling) {
-  ceiling = 9999;
-}
+document.getElementById("textoStatus").innerText = "METAR actualizado";
+document.getElementById("icono").innerText = "✈️";
+document.getElementById("status").style.background = "#2a2a2a";
 
 // =======================
 // CLASIFICACIÓN
