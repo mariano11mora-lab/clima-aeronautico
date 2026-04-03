@@ -1,261 +1,100 @@
-const API_KEY = "RcIUo_t51KXc3pM-t2jA3XfanUvk-NB94lROeL-3u2I";
+// =======================
+// CONFIG API
+// =======================
+const API_KEY = "TU_API_KEY_AQUI"; // ← dejá la tuya
 
-// 🔍 BUSCAR CLIMA
+// =======================
+// FETCH METAR + TAF
+// =======================
 async function buscarClima() {
   const icao = document.getElementById("icao").value.toUpperCase();
+  if (!icao) return;
 
-  const metarEl = document.getElementById("metar");
-  const tafEl = document.getElementById("taf");
-  const statusEl = document.getElementById("status");
-  const iconoEl = document.getElementById("icono");
-  const textoStatusEl = document.getElementById("textoStatus");
-
-  metarEl.textContent = "Cargando...";
-  tafEl.textContent = "Cargando...";
-  textoStatusEl.textContent = "...";
+  document.getElementById("textoStatus").innerText = "Cargando...";
 
   try {
     const metarRes = await fetch(`https://avwx.rest/api/metar/${icao}?token=${API_KEY}`);
-    const metarData = await metarRes.json();
-
     const tafRes = await fetch(`https://avwx.rest/api/taf/${icao}?token=${API_KEY}`);
+
+    const metarData = await metarRes.json();
     const tafData = await tafRes.json();
 
-    if (!metarData.raw) {
-  throw new Error("METAR inválido o API key incorrecta");
-  actualizarBotonFav();
-}
-
-const resultado = traducirMetar(metarData.raw);
-
-    // 📄 METAR traducido
-    metarEl.innerHTML = `
- <pre style="white-space: pre-wrap; margin:0;">
-    ${resultado.categoria}
-${resultado.texto}
-  </pre>
-`;
-
-    // 🎯 ICONO GENERAL
-    let icono = "☀️";
-    if (metarData.raw.includes("TS")) icono = "⛈️";
-    else if (metarData.raw.includes("RA")) icono = "🌧️";
-    else if (metarData.raw.includes("FG")) icono = "🌫️";
-    else if (metarData.raw.includes("OVC") || metarData.raw.includes("BKN")) icono = "☁️";
-
-    iconoEl.textContent = icono;
-
-    // 🎯 TEXTO STATUS
-    let texto =
-      resultado.categoria === "VFR" ? "VFR - Apto" :
-      resultado.categoria === "MVFR" ? "MVFR - Precaución" :
-      resultado.categoria === "IFR" ? "IFR - No apto" :
-      "LIFR - No apto";
-
-    textoStatusEl.textContent = texto;
-
-    // 🎨 COLOR SEGÚN CONDICIÓN
-    if (resultado.categoria === "VFR") {
-      statusEl.style.background = "linear-gradient(135deg, #00c853, #009624)";
-    } else if (resultado.categoria === "MVFR") {
-      statusEl.style.background = "linear-gradient(135deg, #ffd600, #ffab00)";
-    } else {
-      statusEl.style.background = "linear-gradient(135deg, #d50000, #9b0000)";
-    }
-
-    // 📊 RESUMEN
-    document.getElementById("resumen").innerHTML = `
-      <div class="item"><span>🌬️</span>${resultado.viento || "-"}</div>
-      <div class="item"><span>👁️</span>${resultado.visibilidad || "-"}</div>
-      <div class="item"><span>☁️</span>${resultado.nubes || "-"}</div>
-      <div class="item"><span>⚠️</span>${resultado.fenomenos || "Sin fenómenos"}</div>
-    `;
-
-    // 🚨 ALERTAS
-    document.getElementById("alertas").innerHTML =
-      resultado.alertas.length
-        ? resultado.alertas.map(a => `<div class="alerta">${a}</div>`).join("")
-        : "<div class='ok'>✅ Sin alertas</div>";
-
-    // 📄 TAF traducido
-    tafEl.textContent = traducirTaf(tafData.raw);
-
-    // ✨ ANIMACIÓN
-    statusEl.classList.remove("update");
-    void statusEl.offsetWidth;
-    statusEl.classList.add("update");
+    mostrarDatos(metarData, tafData);
+    actualizarBotonFav();
 
   } catch (error) {
-    metarEl.textContent = "Error al obtener datos";
-    tafEl.textContent = "Error al obtener datos";
-    textoStatusEl.textContent = "Error";
+    document.getElementById("textoStatus").innerText = "Error al obtener datos";
     console.error(error);
   }
 }
 
-// ✈️ TRADUCIR METAR
-function traducirMetar(metar) {
-  if (!metar) return { texto: "Sin datos", categoria: "DESCONOCIDO" };
-
-  const partes = metar.split(" ");
-  let resultado = [];
-
-  let visibilidad = "";
-  let ceiling = 9999;
-  let viento = "";
-  let nubes = "";
-  let fenomenos = "";
-
-  partes.forEach(p => {
-
-    // 🌬️ VIENTO
-    if (p.includes("KT")) {
-      const dir = p.substring(0, 3);
-      const vel = parseInt(p.substring(3, 5));
-      viento = `${dir}° ${vel}kt`;
-      resultado.push(`🌬️ Viento: ${viento}`);
-    }
-
-    // 👁️ VISIBILIDAD
-    else if (!isNaN(p)) {
-      visibilidad = `${parseInt(p)} m`;
-      resultado.push(`👁️ Visibilidad: ${visibilidad}`);
-    }
-
-    // ☁️ NUBES
-    else if (p.match(/(FEW|SCT|BKN|OVC)\d{3}/)) {
-      const tipo = p.substring(0, 3);
-      const altura = parseInt(p.substring(3)) * 100;
-
-      const tipos = {
-        FEW: "Pocas",
-        SCT: "Dispersas",
-        BKN: "Fragmentadas",
-        OVC: "Cubierto"
-      };
-
-      nubes = `${tipos[tipo]} ${altura} ft`;
-
-      if (tipo === "BKN" || tipo === "OVC") {
-        ceiling = altura;
-      }
-
-      resultado.push(`☁️ ${nubes}`);
-    }
-
-    // 🌡️ TEMP
-    else if (p.includes("/")) {
-      const [temp, dew] = p.split("/");
-      resultado.push(`🌡️ Temp: ${temp}°C / Rocío: ${dew}°C`);
-    }
-
-    // 🔵 PRESIÓN
-    else if (p.startsWith("Q")) {
-      resultado.push(`🔵 Presión: ${p.substring(1)} hPa`);
-    }
-
-    // ⚠️ FENÓMENOS (independiente)
-    if (p.includes("RA")) fenomenos += "🌧️ ";
-    if (p.includes("TS")) fenomenos += "⛈️ ";
-    if (p === "FG") fenomenos += "🌫️ ";
-  });
-
-  // 🟢 CATEGORÍA
-  let categoria = "VFR";
-  const visNum = parseInt(visibilidad) || 10000;
-
-  if (visNum < 5000 || ceiling < 1500) categoria = "MVFR";
-  if (visNum < 3000 || ceiling < 1000) categoria = "IFR";
-  if (visNum < 1000 || ceiling < 500) categoria = "LIFR";
-
-  resultado.push(`\n✈️ Condición: ${categoria}`);
-
-  let apto = "🟢 Apto";
-  if (categoria === "IFR" || categoria === "LIFR") apto = "🔴 No apto VFR";
-  else if (categoria === "MVFR") apto = "🟡 Precaución";
-
-  resultado.push(apto);
-
-  // 🚨 ALERTAS
-  let alertas = [];
-
-  if (visNum < 3000) alertas.push("🚨 Visibilidad crítica");
-  else if (visNum < 5000) alertas.push("⚠️ Visibilidad reducida");
-
-  if (ceiling < 500) alertas.push("🚨 Techo muy bajo");
-  else if (ceiling < 1000) alertas.push("⚠️ Techo bajo");
-
-  if (fenomenos.includes("⛈️")) alertas.push("⛈️ Tormenta activa");
-  if (fenomenos.includes("🌫️")) alertas.push("🌫️ Niebla presente");
-
-  const vientoNum = parseInt(viento.split(" ")[1]) || 0;
-  if (vientoNum > 25) alertas.push("💨 Viento fuerte");
-
-  return {
-    texto: resultado.join("\n"),
-    categoria,
-    viento,
-    visibilidad,
-    nubes,
-    fenomenos,
-    alertas
-  };
-}
-
-// 📄 TRADUCIR TAF
-function traducirTaf(taf) {
-  if (!taf) return "Sin datos";
-
-  return taf
-    .replace(/TEMPO/g, "\n⏱️ Temporalmente:")
-    .replace(/BECMG/g, "\n🔄 Cambiando a:")
-    .replace(/FM/g, "\n➡️ Desde:")
-    .replace(/RA/g, "🌧️ Lluvia")
-    .replace(/TS/g, "⛈️ Tormenta")
-    .replace(/FG/g, "🌫️ Niebla");
-}
-
-// ⌨️ ENTER PARA BUSCAR
-document.getElementById("icao").addEventListener("keypress", function(e) {
-  if (e.key === "Enter") {
-    buscarClima();
+// =======================
+// MOSTRAR DATOS
+// =======================
+function mostrarDatos(metar, taf) {
+  if (!metar || !metar.raw) {
+    document.getElementById("textoStatus").innerText = "Sin datos";
+    return;
   }
-});
-// ==========================
-// ✈️ CATEGORÍA VFR / IFR
-// ==========================
 
-function obtenerTecho(clouds) {
-  if (!clouds) return 99999;
+  // METAR RAW
+  document.getElementById("metar").innerText = metar.raw || "Sin METAR";
 
-  const capasValidas = clouds.filter(c =>
-    c.type === "BKN" || c.type === "OVC"
-  );
+  // TAF RAW
+  document.getElementById("taf").innerText = taf.raw || "Sin TAF";
 
-  if (capasValidas.length === 0) return 99999;
+  // =======================
+  // PARSEO BÁSICO
+  // =======================
+  const viento = metar.wind_speed ? `${metar.wind_direction.value}° ${metar.wind_speed.value}kt` : "N/D";
+  const visibilidad = metar.visibility ? `${metar.visibility.value} m` : "N/D";
+  const nubes = metar.clouds?.length
+    ? `${metar.clouds[0].type} ${metar.clouds[0].altitude} ft`
+    : "N/D";
 
-  return Math.min(...capasValidas.map(c => c.altitude));
-}
+  // =======================
+  // LÓGICA VFR / IFR
+  // =======================
+  let estado = "IFR";
+  let color = "#e74c3c";
+  let icono = "⛔";
 
-function calcularCategoria(vis, techo) {
-  if (vis < 1 || techo < 500) return "LIFR";
-  if (vis < 3 || techo < 1000) return "IFR";
-  if (vis < 5 || techo < 3000) return "MVFR";
-  return "VFR";
-}
+  const vis = metar.visibility?.value || 0;
+  const ceiling = metar.clouds?.[0]?.altitude || 0;
 
-function obtenerColorCategoria(cat) {
-  switch (cat) {
-    case "VFR": return "limegreen";
-    case "MVFR": return "gold";
-    case "IFR": return "red";
-    case "LIFR": return "purple";
-    default: return "white";
+  if (vis >= 5000 && ceiling >= 3000) {
+    estado = "VFR - Apto";
+    color = "#00c853";
+    icono = "☀️";
+  } else if (vis >= 3000 && ceiling >= 1000) {
+    estado = "MVFR";
+    color = "#ff9800";
+    icono = "⚠️";
   }
+
+  // =======================
+  // UI
+  // =======================
+  document.getElementById("textoStatus").innerText = estado;
+  document.getElementById("icono").innerText = icono;
+  document.getElementById("status").style.background = color;
+
+  document.getElementById("resumen").innerHTML = `
+    <div class="card">
+      🌬️ ${viento}
+    </div>
+    <div class="card">
+      👁️ ${visibilidad}
+    </div>
+    <div class="card">
+      ☁️ ${nubes}
+    </div>
+  `;
 }
-// ==========================
-// ⭐ FAVORITOS SIMPLE
-// ==========================
+
+// =======================
+// ⭐ FAVORITOS
+// =======================
 
 function getFavoritos() {
   return JSON.parse(localStorage.getItem("favoritos")) || [];
@@ -282,92 +121,6 @@ function toggleFavorito() {
   actualizarBotonFav();
 }
 
-function eliminarFavorito(icao) {
-  let favs = getFavoritos().filter(f => f !== icao);
-  guardarFavoritos(favs);
-  renderFavoritos();
-  actualizarBotonFav();
-}
-
-function renderFavoritos() {
-  const cont = document.getElementById("favoritos");
-  let favs = getFavoritos();
-
-  favs.sort();
-
-  cont.innerHTML = `
-    <div class="fav-list">
-      ${favs.map(f => `
-        <div class="fav-item">
-          <span onclick="setICAO('${f}')">✈️ ${f}</span>
-          <span onclick="eliminarFavorito('${f}')" style="cursor:pointer;">❌</span>
-        </div>
-      `).join("")}
-    </div>
-  `;
-}
-
-function setICAO(codigo) {
-  document.getElementById("icao").value = codigo;
-  buscarClima();
-  actualizarBotonFav();
-}
-
-function actualizarBotonFav() {
-  const icao = document.getElementById("icao").value.toUpperCase();
-  const favs = getFavoritos();
-  const btn = document.getElementById("btnFav");
-
-  if (!btn) return;
-
-  btn.innerText = favs.includes(icao) ? "★" : "☆";
-}
-
-renderFavoritos();
-// ==========================
-// ⭐ FAVORITOS (simple y seguro)
-// ==========================
-
-function getFavoritos() {
-  return JSON.parse(localStorage.getItem("favoritos")) || [];
-}
-
-function guardarFavoritos(favs) {
-  localStorage.setItem("favoritos", JSON.stringify(favs));
-}
-
-function agregarFavoritoManual() {
-  const icao = document.getElementById("icao").value.toUpperCase();
-  if (!icao) return;
-
-  let favs = getFavoritos();
-
-  if (!favs.includes(icao)) {
-    favs.push(icao);
-    guardarFavoritos(favs);
-    renderFavoritos();
-  }
-}
-
-function renderFavoritos() {
-  const cont = document.getElementById("favoritos");
-  if (!cont) return;
-
-  const favs = getFavoritos();
-
-  cont.innerHTML = favs.map(f => `
-    <div class="fav-item" onclick="seleccionarFavorito('${f}')">
-      ✈️ ${f}
-    </div>
-  `).join("");
-}
-
-function seleccionarFavorito(icao) {
-  document.getElementById("icao").value = icao;
-  buscarClima();
-}
-
-// inicializar
 function renderFavoritos() {
   const cont = document.getElementById("favoritos");
   const favs = getFavoritos();
@@ -387,3 +140,24 @@ function renderFavoritos() {
     </div>
   `;
 }
+
+function seleccionarFavorito(icao) {
+  document.getElementById("icao").value = icao;
+  buscarClima();
+  actualizarBotonFav();
+}
+
+function actualizarBotonFav() {
+  const icao = document.getElementById("icao").value.toUpperCase();
+  const favs = getFavoritos();
+  const btn = document.getElementById("btnFav");
+
+  if (!btn) return;
+
+  btn.innerText = favs.includes(icao) ? "★" : "☆";
+}
+
+// =======================
+// INIT
+// =======================
+renderFavoritos();

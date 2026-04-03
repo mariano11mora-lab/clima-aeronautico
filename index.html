@@ -7,48 +7,47 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="favoritos" class="favoritos"></div>
-  <div class="container">
 
-    <div class="search-container">
-<div class="buscador">
-  <div class="buscador-inner">
-    <input type="text" id="icao" placeholder="Ej: SAEZ">
-    <button onclick="buscarClima()">Buscar</button>
-    <button onclick="agregarFavoritoManual()">★</button>
+<div class="container">
+
+  <!-- 🔍 BUSCADOR -->
+  <div class="buscador">
+    <div class="buscador-inner">
+      <input type="text" id="icao" placeholder="Ej: SAEZ">
+      <button onclick="buscarClima()">Buscar</button>
+      <button onclick="toggleFavorito()" id="btnFav">☆</button>
+    </div>
   </div>
+
+  <!-- ⭐ FAVORITOS -->
+  <div id="favoritos" class="favoritos-bar"></div>
+
+  <!-- STATUS -->
+  <div id="status" class="card status">
+    <div id="icono">✈️</div>
+    <div id="textoStatus">Esperando datos...</div>
+  </div>
+
+  <!-- RESUMEN -->
+  <div id="resumen"></div>
+
+  <!-- GRID -->
+  <div class="grid">
+    <div class="card">
+      <h3>METAR</h3>
+      <pre id="metar"></pre>
+    </div>
+
+    <div class="card">
+      <h3>TAF</h3>
+      <pre id="taf"></pre>
+    </div>
+  </div>
+
+  <div id="alertas"></div>
+
 </div>
-<div id="favoritos" class="favoritos-bar"></div>
 
-    <div id="status" class="card status">
-  <div id="icono">✈️</div>
-  <div id="textoStatus">Esperando datos...</div>
-</div>
-
-<!-- 👇 ACÁ VA -->
-<div id="resumen" class="resumen"></div>
-
-    <div class="grid">
-
-  <div class="card">
-    <h3>METAR</h3>
-    <pre id="metar"></pre>
-  </div>
-
-  <div class="card">
-    <h3>TAF</h3>
-    <pre id="taf"></pre>
-  </div>
-
-</div>
-
-  </div>
-
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
-<div id="alertas"></div>
-<input id="icao">
-<button onclick="toggleFavorito()" id="btnFav">☆</button>
-<button onclick="agregarFavoritoManual()">+ Fav</button>
-<div id="favoritos"></div>
 </html>
