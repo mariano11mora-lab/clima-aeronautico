@@ -1,80 +1,187 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background-color: #121212;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  background: linear-gradient(180deg, #0c0f14, #111827);
   color: white;
-}
-
-/* 🔍 Buscador */
-.search-container {
   display: flex;
   justify-content: center;
-  margin-top: 80px;
+  padding: 16px;
 }
 
-.search-box {
-  width: 60%;
-  max-width: 500px;
-}
-
-.search-box input {
+/* CONTENEDOR */
+.container {
   width: 100%;
-  padding: 16px 20px;
-  border-radius: 999px;
-  border: none;
-  font-size: 18px;
-  outline: none;
-  background: #1e1e1e;
-  color: white;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  transition: all 0.25s ease;
+  max-width: 420px;
 }
 
-.search-box input:focus {
-  box-shadow: 0 6px 30px rgba(0,0,0,0.6);
-  transform: scale(1.02);
-}
-
-/* ⭐ Favoritos */
-.favoritos {
-  max-width: 800px;
-  margin: 40px auto 0;
-  padding: 0 20px;
-}
-
-.favoritos h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
-  opacity: 0.8;
-}
-
-.fav-list {
+/* INPUT + BOTÓN */
+.search {
   display: flex;
-  flex-wrap: wrap;
   gap: 10px;
+  margin-bottom: 16px;
 }
 
-.fav-item {
-  background: #1e1e1e;
-  padding: 8px 14px;
-  border-radius: 20px;
+.search input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: #1f2937;
+  color: white;
+  font-size: 16px;
+}
+
+.search button {
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
 }
 
-.fav-item:hover {
-  background: #2a2a2a;
+/* STATUS CARD */
+.status {
+  text-align: center;
+  padding: 20px;
+  border-radius: 18px;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
-/* ⭐ botón */
-.star {
-  cursor: pointer;
+/* COLORES */
+.vfr {
+  background: #16a34a;
+}
+
+.mvfr {
+  background: #eab308;
+  color: black;
+}
+
+.ifr {
+  background: #dc2626;
+}
+
+/* TARJETAS */
+.card {
+  background: #1f2937;
+  padding: 16px;
+  border-radius: 16px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.card h2 {
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #9ca3af;
+  letter-spacing: 1px;
+}
+
+/* TEXTO */
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* 🖥️ DESKTOP */
+@media (min-width: 768px) {
+
+  .container {
+    max-width: 900px;
+  }
+
+  /* GRID PARA DESKTOP */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* STATUS ocupa todo arriba */
+  .status {
+    grid-column: span 2;
+    font-size: 22px;
+    padding: 25px;
+  }
+
+  pre {
+    font-size: 15px;
+  }
+
+  .search input {
+    font-size: 18px;
+  }
+}
+.resumen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.item {
+  background: #1f2937;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.item span {
+  display: block;
   font-size: 20px;
-  margin-left: 10px;
-  color: gray;
-  transition: 0.2s;
+  margin-bottom: 4px;
+}
+#resumen {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 15px;
 }
 
-.star.active {
-  color: gold;
+.item {
+  background: rgba(255,255,255,0.08);
+  padding: 10px;
+  border-radius: 12px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#alertas {
+  margin-top: 15px;
+}
+
+.alerta {
+  background: #ff5252;
+  padding: 8px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.ok {
+  background: #00c853;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+#icono {
+  font-size: 42px;
+}
+.status {
+  text-align: center;
+  padding: 15px;
+  border-radius: 16px;
 }
