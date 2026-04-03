@@ -28,7 +28,28 @@ async function buscarClima() {
 const resultado = traducirMetar(metarData.raw);
 
     // 📄 METAR traducido
-    metarEl.textContent = resultado.texto;
+    metarEl.innerHTML = `
+  <div style="
+    display:inline-block;
+    padding:6px 12px;
+    border-radius:12px;
+    font-weight:bold;
+    margin-bottom:10px;
+    background:${
+      resultado.categoria === "VFR" ? "limegreen" :
+      resultado.categoria === "MVFR" ? "gold" :
+      resultado.categoria === "IFR" ? "red" :
+      "purple"
+    };
+    color:black;
+  ">
+    ${resultado.categoria}
+  </div>
+
+  <pre style="white-space: pre-wrap; margin:0;">
+${resultado.texto}
+  </pre>
+`;
 
     // 🎯 ICONO GENERAL
     let icono = "☀️";
@@ -215,3 +236,35 @@ document.getElementById("icao").addEventListener("keypress", function(e) {
     buscarClima();
   }
 });
+// ==========================
+// ✈️ CATEGORÍA VFR / IFR
+// ==========================
+
+function obtenerTecho(clouds) {
+  if (!clouds) return 99999;
+
+  const capasValidas = clouds.filter(c =>
+    c.type === "BKN" || c.type === "OVC"
+  );
+
+  if (capasValidas.length === 0) return 99999;
+
+  return Math.min(...capasValidas.map(c => c.altitude));
+}
+
+function calcularCategoria(vis, techo) {
+  if (vis < 1 || techo < 500) return "LIFR";
+  if (vis < 3 || techo < 1000) return "IFR";
+  if (vis < 5 || techo < 3000) return "MVFR";
+  return "VFR";
+}
+
+function obtenerColorCategoria(cat) {
+  switch (cat) {
+    case "VFR": return "limegreen";
+    case "MVFR": return "gold";
+    case "IFR": return "red";
+    case "LIFR": return "purple";
+    default: return "white";
+  }
+}
