@@ -301,3 +301,53 @@ pre {
 .fav-item:hover {
   background: #2a2a2a;
 }
+/* Contenedor general */
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+
+/* Buscador responsive */
+.buscador {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.buscador input {
+  flex: 1;
+  min-width: 200px;
+  max-width: 400px;
+}
+
+/* Cards principales */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .favoritos {
+    justify-content: center;
+  }
+}
+#btnFav {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  background: #2a2a2a;
+  color: white;
+  cursor: pointer;
+}
+
+#btnFav:hover {
+  background: #3a3a3a;
+}
