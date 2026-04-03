@@ -1,187 +1,80 @@
-* {
-  box-sizing: border-box;
-}
-
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-  background: linear-gradient(180deg, #0c0f14, #111827);
+  font-family: Arial, sans-serif;
+  background-color: #121212;
   color: white;
+}
+
+/* 🔍 Buscador */
+.search-container {
   display: flex;
   justify-content: center;
-  padding: 16px;
+  margin-top: 80px;
 }
 
-/* CONTENEDOR */
-.container {
+.search-box {
+  width: 60%;
+  max-width: 500px;
+}
+
+.search-box input {
   width: 100%;
-  max-width: 420px;
-}
-
-/* INPUT + BOTÓN */
-.search {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.search input {
-  flex: 1;
-  padding: 14px;
-  border-radius: 12px;
+  padding: 16px 20px;
+  border-radius: 999px;
   border: none;
-  background: #1f2937;
-  color: white;
-  font-size: 16px;
-}
-
-.search button {
-  padding: 14px 18px;
-  border-radius: 12px;
-  border: none;
-  background: #2563eb;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* STATUS CARD */
-.status {
-  text-align: center;
-  padding: 20px;
-  border-radius: 18px;
-  margin-bottom: 16px;
   font-size: 18px;
-  font-weight: 600;
+  outline: none;
+  background: #1e1e1e;
+  color: white;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  transition: all 0.25s ease;
 }
 
-/* COLORES */
-.vfr {
-  background: #16a34a;
+.search-box input:focus {
+  box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+  transform: scale(1.02);
 }
 
-.mvfr {
-  background: #eab308;
-  color: black;
+/* ⭐ Favoritos */
+.favoritos {
+  max-width: 800px;
+  margin: 40px auto 0;
+  padding: 0 20px;
 }
 
-.ifr {
-  background: #dc2626;
-}
-
-/* TARJETAS */
-.card {
-  background: #1f2937;
-  padding: 16px;
-  border-radius: 16px;
-  margin-bottom: 16px;
-  border: 1px solid rgba(255,255,255,0.05);
-}
-
-.card h2 {
-  font-size: 14px;
+.favoritos h2 {
+  font-size: 18px;
   margin-bottom: 10px;
-  color: #9ca3af;
-  letter-spacing: 1px;
+  opacity: 0.8;
 }
 
-/* TEXTO */
-pre {
-  margin: 0;
-  white-space: pre-wrap;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-/* 🖥️ DESKTOP */
-@media (min-width: 768px) {
-
-  .container {
-    max-width: 900px;
-  }
-
-  /* GRID PARA DESKTOP */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-  }
-
-  /* STATUS ocupa todo arriba */
-  .status {
-    grid-column: span 2;
-    font-size: 22px;
-    padding: 25px;
-  }
-
-  pre {
-    font-size: 15px;
-  }
-
-  .search input {
-    font-size: 18px;
-  }
-}
-.resumen {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.item {
-  background: #1f2937;
-  padding: 12px;
-  border-radius: 12px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.item span {
-  display: block;
-  font-size: 20px;
-  margin-bottom: 4px;
-}
-#resumen {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 15px;
-}
-
-.item {
-  background: rgba(255,255,255,0.08);
-  padding: 10px;
-  border-radius: 12px;
-  font-size: 14px;
+.fav-list {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-#alertas {
-  margin-top: 15px;
+.fav-item {
+  background: #1e1e1e;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.alerta {
-  background: #ff5252;
-  padding: 8px;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  font-size: 13px;
+.fav-item:hover {
+  background: #2a2a2a;
 }
 
-.ok {
-  background: #00c853;
-  padding: 8px;
-  border-radius: 8px;
-  font-size: 13px;
+/* ⭐ botón */
+.star {
+  cursor: pointer;
+  font-size: 20px;
+  margin-left: 10px;
+  color: gray;
+  transition: 0.2s;
 }
-#icono {
-  font-size: 42px;
-}
-.status {
-  text-align: center;
-  padding: 15px;
-  border-radius: 16px;
+
+.star.active {
+  color: gold;
 }
