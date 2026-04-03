@@ -2,50 +2,53 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Clima Aeronáutico</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<div id="favoritos" class="favoritos"></div>
+  <div class="container">
 
-<div class="container">
+    <div class="search-container">
+<div class="buscador">
+  <input type="text" id="icao" placeholder="Ej: SAEZ">
+  
+  <!-- ⭐ BOTÓN FAVORITO -->
+  <button onclick="toggleFavorito()" id="btnFav">☆</button>
+  
+  <button onclick="buscarClima()">Buscar</button>
+</div>
+</div>
 
-  <!-- BUSCADOR -->
-  <div class="buscador">
-    <input type="text" id="icao" placeholder="Ej: SAEZ">
-    <button onclick="buscarClima()">Buscar</button>
-    <button onclick="agregarFavorito()">+ Favorito</button>
+    <div id="status" class="card status">
+  <div id="icono">✈️</div>
+  <div id="textoStatus">Esperando datos...</div>
+</div>
+
+<!-- 👇 ACÁ VA -->
+<div id="resumen" class="resumen"></div>
+
+    <div class="grid">
+
+  <div class="card">
+    <h3>METAR</h3>
+    <pre id="metar"></pre>
   </div>
 
-  <!-- FAVORITOS -->
-  <div id="favoritos" class="favoritos"></div>
-
-  <!-- STATUS -->
-  <div id="status" class="status">
-    <div id="icono">☀️</div>
-    <div id="textoStatus">---</div>
+  <div class="card">
+    <h3>TAF</h3>
+    <pre id="taf"></pre>
   </div>
-
-  <!-- RESUMEN -->
-  <div id="resumen" class="resumen"></div>
-
-  <!-- GRID -->
-  <div class="grid">
-    <div class="card">
-      <h3>METAR</h3>
-      <div id="metar"></div>
-    </div>
-
-    <div class="card">
-      <h3>TAF</h3>
-      <div id="taf"></div>
-    </div>
-  </div>
-
-  <!-- ALERTAS -->
-  <div id="alertas"></div>
 
 </div>
 
-<script src="app.js"></script>
+  </div>
+
+  <script src="app.js"></script>
 </body>
+<div id="alertas"></div>
+<input id="icao">
+<button onclick="toggleFavorito()" id="btnFav">☆</button>
+<div id="favoritos"></div>
 </html>

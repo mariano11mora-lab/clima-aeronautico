@@ -265,33 +265,62 @@ function guardarFavoritos(favs) {
   localStorage.setItem("favoritos", JSON.stringify(favs));
 }
 
-function agregarFavorito() {
+function toggleFavorito() {
   const icao = document.getElementById("icao").value.toUpperCase();
   if (!icao) return;
 
   let favs = getFavoritos();
 
-  if (!favs.includes(icao)) {
+  if (favs.includes(icao)) {
+    favs = favs.filter(f => f !== icao);
+  } else {
     favs.push(icao);
-    guardarFavoritos(favs);
-    renderFavoritos();
   }
+
+  guardarFavoritos(favs);
+  renderFavoritos();
+  actualizarBotonFav();
+}
+
+function eliminarFavorito(icao) {
+  let favs = getFavoritos().filter(f => f !== icao);
+  guardarFavoritos(favs);
+  renderFavoritos();
+  actualizarBotonFav();
 }
 
 function renderFavoritos() {
   const cont = document.getElementById("favoritos");
-  const favs = getFavoritos();
+  let favs = getFavoritos();
 
-  cont.innerHTML = favs.map(f => `
-    <div class="fav-item" onclick="seleccionarFavorito('${f}')">
-      ✈️ ${f}
+  favs.sort();
+
+  cont.innerHTML = `
+    <div class="fav-list">
+      ${favs.map(f => `
+        <div class="fav-item">
+          <span onclick="setICAO('${f}')">✈️ ${f}</span>
+          <span onclick="eliminarFavorito('${f}')" style="cursor:pointer;">❌</span>
+        </div>
+      `).join("")}
     </div>
-  `).join("");
+  `;
 }
 
-function seleccionarFavorito(icao) {
-  document.getElementById("icao").value = icao;
+function setICAO(codigo) {
+  document.getElementById("icao").value = codigo;
   buscarClima();
+  actualizarBotonFav();
+}
+
+function actualizarBotonFav() {
+  const icao = document.getElementById("icao").value.toUpperCase();
+  const favs = getFavoritos();
+  const btn = document.getElementById("btnFav");
+
+  if (!btn) return;
+
+  btn.innerText = favs.includes(icao) ? "★" : "☆";
 }
 
 renderFavoritos();
