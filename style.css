@@ -270,3 +270,11 @@ pre {
 .search-box button:hover {
   background: #3a3a3a;
 }
+.search-container {
+  margin-top: 60px;
+  margin-bottom: 30px;
+}
+
+.status {
+  margin-top: 20px;
+}
