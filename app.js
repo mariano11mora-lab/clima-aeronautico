@@ -55,22 +55,52 @@ function mostrarDatos(metar, taf) {
   // =======================
   // LÓGICA VFR / IFR
   // =======================
-  let estado = "IFR";
-  let color = "#e74c3c";
-  let icono = "⛔";
+// =======================
+// LÓGICA VFR / IFR MEJORADA
+// =======================
 
-  const vis = metar.visibility?.value || 0;
-  const ceiling = metar.clouds?.[0]?.altitude || 0;
+// VISIBILIDAD
+let vis = metar.visibility?.value;
 
-  if (vis >= 5000 && ceiling >= 3000) {
-    estado = "VFR - Apto";
-    color = "#00c853";
-    icono = "☀️";
-  } else if (vis >= 3000 && ceiling >= 1000) {
-    estado = "MVFR";
-    color = "#ff9800";
-    icono = "⚠️";
+if (!vis) {
+  // fallback si no viene visibilidad clara
+  vis = 9999;
+}
+
+// CEILING (solo BKN / OVC cuentan)
+let ceiling = null;
+
+if (metar.clouds && metar.clouds.length > 0) {
+  const capas = metar.clouds.filter(c =>
+    c.type === "BKN" || c.type === "OVC"
+  );
+
+  if (capas.length > 0) {
+    ceiling = capas[0].altitude;
   }
+}
+
+// Si no hay techo → lo consideramos alto (cielo OK)
+if (!ceiling) {
+  ceiling = 9999;
+}
+
+// =======================
+// CLASIFICACIÓN
+// =======================
+let estado = "IFR";
+let color = "#e74c3c";
+let icono = "⛔";
+
+if (vis >= 5000 && ceiling >= 3000) {
+  estado = "VFR - Apto";
+  color = "#00c853";
+  icono = "☀️";
+} else if (vis >= 3000 && ceiling >= 1000) {
+  estado = "MVFR";
+  color = "#ff9800";
+  icono = "⚠️";
+}
 
   // =======================
   // UI
