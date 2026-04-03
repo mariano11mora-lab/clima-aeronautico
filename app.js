@@ -3,7 +3,6 @@ const API_KEY = "RcIUo_t51KXc3pM-t2jA3XfanUvk-NB94lROeL-3u2I";
 // 🔍 BUSCAR CLIMA
 async function buscarClima() {
   const icao = document.getElementById("icao").value.toUpperCase();
-  agregarFavorito(icao);
 
   const metarEl = document.getElementById("metar");
   const tafEl = document.getElementById("taf");
@@ -24,6 +23,7 @@ async function buscarClima() {
 
     if (!metarData.raw) {
   throw new Error("METAR inválido o API key incorrecta");
+  actualizarBotonFav();
 }
 
 const resultado = traducirMetar(metarData.raw);
@@ -257,35 +257,54 @@ function obtenerColorCategoria(cat) {
 // ⭐ FAVORITOS
 // ==========================
 
+// ==========================
+// ⭐ FAVORITOS PRO
+// ==========================
+
 function getFavoritos() {
   return JSON.parse(localStorage.getItem("favoritos")) || [];
 }
 
-function agregarFavorito(icao) {
+function guardarFavoritos(favs) {
+  localStorage.setItem("favoritos", JSON.stringify(favs));
+}
+
+function toggleFavorito() {
+  const icao = document.getElementById("icao").value.toUpperCase();
+  if (!icao) return;
+
   let favs = getFavoritos();
 
-  if (!favs.includes(icao)) {
+  if (favs.includes(icao)) {
+    favs = favs.filter(f => f !== icao);
+  } else {
     favs.push(icao);
-    localStorage.setItem("favoritos", JSON.stringify(favs));
   }
 
+  guardarFavoritos(favs);
   renderFavoritos();
+  actualizarBotonFav();
+}
+
+function eliminarFavorito(icao) {
+  let favs = getFavoritos().filter(f => f !== icao);
+  guardarFavoritos(favs);
+  renderFavoritos();
+  actualizarBotonFav();
 }
 
 function renderFavoritos() {
   const cont = document.getElementById("favoritos");
-  const favs = getFavoritos();
+  let favs = getFavoritos();
 
-  if (favs.length === 0) {
-    cont.innerHTML = "";
-    return;
-  }
+  favs.sort();
 
   cont.innerHTML = `
     <div class="fav-list">
       ${favs.map(f => `
-        <div class="fav-item" onclick="setICAO('${f}')">
-          ✈️ ${f}
+        <div class="fav-item">
+          <span onclick="setICAO('${f}')">✈️ ${f}</span>
+          <span onclick="eliminarFavorito('${f}')" style="cursor:pointer;">❌</span>
         </div>
       `).join("")}
     </div>
@@ -295,5 +314,17 @@ function renderFavoritos() {
 function setICAO(codigo) {
   document.getElementById("icao").value = codigo;
   buscarClima();
+  actualizarBotonFav();
 }
+
+function actualizarBotonFav() {
+  const icao = document.getElementById("icao").value.toUpperCase();
+  const favs = getFavoritos();
+  const btn = document.getElementById("btnFav");
+
+  if (!btn) return;
+
+  btn.innerText = favs.includes(icao) ? "★" : "☆";
+}
+
 renderFavoritos();
