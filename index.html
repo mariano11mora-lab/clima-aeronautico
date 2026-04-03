@@ -12,14 +12,13 @@
 
     <div class="search-container">
 <div class="buscador">
-  <input type="text" id="icao" placeholder="Ej: SAEZ">
-  
-  <!-- ⭐ BOTÓN FAVORITO -->
-  <button onclick="toggleFavorito()" id="btnFav">☆</button>
-  
-  <button onclick="buscarClima()">Buscar</button>
+  <div class="buscador-inner">
+    <input type="text" id="icao" placeholder="Ej: SAEZ">
+    <button onclick="buscarClima()">Buscar</button>
+    <button onclick="agregarFavoritoManual()">★</button>
+  </div>
 </div>
-</div>
+<div id="favoritos" class="favoritos-bar"></div>
 
     <div id="status" class="card status">
   <div id="icono">✈️</div>

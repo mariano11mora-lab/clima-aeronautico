@@ -368,4 +368,22 @@ function seleccionarFavorito(icao) {
 }
 
 // inicializar
-renderFavoritos();
+function renderFavoritos() {
+  const cont = document.getElementById("favoritos");
+  const favs = getFavoritos();
+
+  if (favs.length === 0) {
+    cont.innerHTML = "";
+    return;
+  }
+
+  cont.innerHTML = `
+    <div class="favoritos-inner">
+      ${favs.map(f => `
+        <div class="fav-item" onclick="seleccionarFavorito('${f}')">
+          ✈️ ${f}
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
