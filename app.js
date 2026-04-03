@@ -324,3 +324,48 @@ function actualizarBotonFav() {
 }
 
 renderFavoritos();
+// ==========================
+// ⭐ FAVORITOS (simple y seguro)
+// ==========================
+
+function getFavoritos() {
+  return JSON.parse(localStorage.getItem("favoritos")) || [];
+}
+
+function guardarFavoritos(favs) {
+  localStorage.setItem("favoritos", JSON.stringify(favs));
+}
+
+function agregarFavoritoManual() {
+  const icao = document.getElementById("icao").value.toUpperCase();
+  if (!icao) return;
+
+  let favs = getFavoritos();
+
+  if (!favs.includes(icao)) {
+    favs.push(icao);
+    guardarFavoritos(favs);
+    renderFavoritos();
+  }
+}
+
+function renderFavoritos() {
+  const cont = document.getElementById("favoritos");
+  if (!cont) return;
+
+  const favs = getFavoritos();
+
+  cont.innerHTML = favs.map(f => `
+    <div class="fav-item" onclick="seleccionarFavorito('${f}')">
+      ✈️ ${f}
+    </div>
+  `).join("");
+}
+
+function seleccionarFavorito(icao) {
+  document.getElementById("icao").value = icao;
+  buscarClima();
+}
+
+// inicializar
+renderFavoritos();

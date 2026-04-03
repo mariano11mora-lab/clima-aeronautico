@@ -351,3 +351,17 @@ pre {
 #btnFav:hover {
   background: #3a3a3a;
 }
+#favoritos {
+  margin-top: 10px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fav-item {
+  background: #1e1e1e;
+  padding: 6px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
