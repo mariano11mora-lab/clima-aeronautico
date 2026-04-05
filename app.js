@@ -95,7 +95,28 @@ if (metar.visibility) {
   } else if (raw.includes("FG")) {
     resumenTexto = "Niebla presente";
     icono = "🌫️";
+    const tendencia = obtenerTrendTAF(taf);
   }
+
+ 
+// 👇 ACÁ PEGÁS ESTO
+function obtenerTrendTAF(taf) {
+  if (!taf || !taf.raw) return "Sin TAF";
+
+  const texto = taf.raw;
+
+  const malo = ["TS", "RA", "FG", "BKN", "OVC"];
+  const bueno = ["NSC", "SKC", "FEW", "SCT"];
+
+  let empeora = malo.some(cond => texto.includes(cond));
+  let mejora = bueno.some(cond => texto.includes(cond));
+
+  if (empeora && !mejora) return "📉 Empeora";
+  if (mejora && !empeora) return "📈 Mejora";
+  if (empeora && mejora) return "⚠️ Variable";
+
+  return "➖ Sin cambios";
+}
   // =======================
 // UI SIN INTERPRETACIÓN
 // =======================
@@ -104,6 +125,9 @@ document.getElementById("textoStatus").innerHTML = `
   <div>${resumenTexto}</div>
   <div style="font-size:13px; margin-top:5px; opacity:0.8;">
     ${vientoTexto} • ${visTexto} • ${nubesTexto}
+  </div>
+  <div style="font-size:12px; margin-top:6px; opacity:0.6;">
+    ${tendencia}
   </div>
 `;
 
