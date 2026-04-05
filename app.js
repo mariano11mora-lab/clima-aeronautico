@@ -104,15 +104,6 @@ document.getElementById("status").style.background = "#1e1e1e";
   // UI
   // =======================
 
-  document.getElementById("icono").innerText = iconoFinal;
-
-  document.getElementById("textoStatus").innerHTML = `
-    <div>${estado}</div>
-    <div style="font-size:13px; margin-top:5px; opacity:0.8;">
-      ${resumenTexto} • ${vientoTexto} • ${visTexto} • ${nubesTexto}
-    </div>
-  `;
-
   // METAR / TAF
   document.getElementById("metar").innerText = metar.raw || "Sin METAR";
   document.getElementById("taf").innerText = taf?.raw || "Sin TAF";
