@@ -1,7 +1,7 @@
 // =======================
 // CONFIG API
 // =======================
-const API_KEY = "RcIUo_t51KXc3pM-t2jA3XfanUvk-NB94lROeL-3u2I"; // ← dejá la tuya
+const API_KEY = "7QaTMHGqVWTff57_z1Vmvlf5C_CwwZtlBAVdXd0LKSs"; // ← dejá la tuya
 
 // =======================
 // FETCH METAR + TAF
