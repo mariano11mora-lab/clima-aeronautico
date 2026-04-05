@@ -87,23 +87,18 @@ function mostrarDatos(metar, taf) {
     resumenTexto = "Niebla presente";
     icono = "🌫️";
   }
-
   // =======================
-  // CLASIFICACIÓN VFR
-  // =======================
-  let estado = "IFR";
-  let color = "#e74c3c";
-  let iconoFinal = "⛔";
+// UI SIN INTERPRETACIÓN
+// =======================
 
-  if (vis >= 5000 && ceiling >= 3000) {
-    estado = "VFR - Apto";
-    color = "#00c853";
-    iconoFinal = "☀️";
-  } else if (vis >= 3000 && ceiling >= 1000) {
-    estado = "MVFR";
-    color = "#ff9800";
-    iconoFinal = "⚠️";
-  }
+document.getElementById("textoStatus").innerHTML = `
+  <div>${resumenTexto}</div>
+  <div style="font-size:13px; margin-top:5px; opacity:0.8;">
+    ${vientoTexto} • ${visTexto} • ${nubesTexto}
+  </div>
+`;
+
+document.getElementById("status").style.background = "#1e1e1e";
 
   // =======================
   // UI
@@ -117,8 +112,6 @@ function mostrarDatos(metar, taf) {
       ${resumenTexto} • ${vientoTexto} • ${visTexto} • ${nubesTexto}
     </div>
   `;
-
-  document.getElementById("status").style.background = color;
 
   // METAR / TAF
   document.getElementById("metar").innerText = metar.raw || "Sin METAR";
