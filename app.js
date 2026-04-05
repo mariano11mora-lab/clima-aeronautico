@@ -42,7 +42,16 @@ function mostrarDatos(metar, taf) {
   let icono = "✈️";
 
   // VISIBILIDAD
-  let vis = metar.visibility?.value || 9999;
+  let vis = 9999;
+
+if (metar.visibility) {
+  if (metar.visibility.value) {
+    vis = metar.visibility.value;
+  } else if (metar.visibility.repr?.includes("SM")) {
+    const millas = parseFloat(metar.visibility.repr);
+    vis = millas * 1600; // convertir a metros aprox
+  }
+}
 
   let visTexto = "👁️ Visibilidad desconocida";
   if (vis >= 8000) visTexto = "👁️ Visibilidad excelente";
@@ -113,9 +122,25 @@ document.getElementById("status").style.background = "#1e1e1e";
     ? `${metar.wind_direction?.value || ""}° ${metar.wind_speed.value}kt`
     : "N/D";
 
-  const visibilidad = metar.visibility
-    ? `${metar.visibility.value} m`
-    : "N/D";
+  let visibilidad = "N/D";
+
+if (metar.visibility) {
+  const vis = metar.visibility;
+
+  if (vis.repr && vis.repr.includes("SM")) {
+    // Está en millas
+    const millas = parseFloat(vis.repr);
+    const km = Math.round(millas * 1.6);
+    visibilidad = `${millas} SM (~${km} km)`;
+  } else if (vis.value) {
+    // Está en metros
+    if (vis.value >= 9999) {
+      visibilidad = "10 km o más";
+    } else {
+      visibilidad = `${vis.value} m`;
+    }
+  }
+}
 
   const nubes = metar.clouds?.length
     ? `${metar.clouds[0].type} ${metar.clouds[0].altitude} ft`
