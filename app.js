@@ -23,8 +23,8 @@ async function buscarClima() {
     actualizarBotonFav();
 
   } catch (error) {
-    document.getElementById("textoStatus").innerText = "Error al obtener datos";
-    console.error(error);
+  console.error("ERROR REAL:", error);
+  document.getElementById("textoStatus").innerText = "Error al obtener datos";
   }
 }
 
