@@ -1,116 +1,175 @@
-const API_KEY = "7QaTMHGqVWTff57_z1Vmvlf5C_CwwZtlBAVdXd0LKSs";
+const API_KEY = "PdYzcUJxk02rm2Aoahb70iCdrT1v_RrgSxt2D_XvR28";
 
-// =======================
-// BUSCAR METAR + TAF
-// =======================
+// ======================
+// BUSCAR CLIMA
+// ======================
 async function buscarClima() {
-  const icao = document.getElementById("inputICAO").value.toUpperCase();
+  const icao = document
+    .getElementById("inputICAO")
+    .value.trim()
+    .toUpperCase();
 
-  document.getElementById("textoStatus").innerText = "Cargando...";
+  if (!icao) return;
+
+  setLoading();
 
   try {
-    const metarRes = await fetch(`https://avwx.rest/api/metar/${icao}?token=${API_KEY}`);
-    const tafRes = await fetch(`https://avwx.rest/api/taf/${icao}?token=${API_KEY}`);
+    const metarRes = await fetch(
+      `https://avwx.rest/api/metar/${icao}?token=${API_KEY}`
+    );
+
+    const tafRes = await fetch(
+      `https://avwx.rest/api/taf/${icao}?token=${API_KEY}`
+    );
 
     const metar = await metarRes.json();
     const taf = await tafRes.json();
 
-    mostrarDatos(metar, taf);
+    if (!metar.raw) {
+      setError("Aeropuerto no encontrado");
+      return;
+    }
+
+    renderData(metar, taf);
   } catch (error) {
-    document.getElementById("textoStatus").innerText = "Error al obtener datos";
+    setError("Error al obtener datos");
   }
 }
 
-// =======================
-// MOSTRAR DATOS
-// =======================
-function mostrarDatos(metar, taf) {
+// ======================
+// ESTADOS UI
+// ======================
+function setLoading() {
+  document.getElementById("textoStatus").innerHTML = "✈️ Cargando...";
+}
 
-  if (!metar || !metar.raw) {
-    document.getElementById("textoStatus").innerText = "Sin datos";
-    return;
-  }
+function setError(msg) {
+  document.getElementById("textoStatus").innerHTML = msg;
+}
 
-  let resumenTexto = "Condiciones generales buenas";
-  let icono = "✈️";
+// ======================
+// RENDER PRINCIPAL
+// ======================
+function renderData(metar, taf) {
+  const vis = getVisibility(metar);
+  const ceiling = getCeiling(metar);
+  const wind = metar.wind_speed?.value || 0;
+  const windDir = metar.wind_direction?.value || "---";
+  const temp = metar.temperature?.value ?? "--";
+  const dew = metar.dewpoint?.value ?? "--";
+  const qnh = metar.altimeter?.value ?? "--";
 
-  // =======================
-  // VISIBILIDAD
-  // =======================
-  let vis = 9999;
+  const category = getFlightCategory(vis, ceiling);
+  const categoryInfo = getCategoryVisual(category);
 
-  if (metar.visibility) {
-    if (metar.visibility.value) {
-      vis = metar.visibility.value;
-    } else if (metar.visibility.repr?.includes("SM")) {
-      const millas = parseFloat(metar.visibility.repr);
-      vis = millas * 1600;
-    }
-  }
-
-  let visTexto = "👁️ Visibilidad desconocida";
-
-  if (vis >= 8000) visTexto = "👁️ Visibilidad excelente";
-  else if (vis >= 5000) visTexto = "👁️ Buena visibilidad";
-  else if (vis >= 3000) visTexto = "👁️ Visibilidad reducida";
-  else visTexto = "👁️ Baja visibilidad";
-
-  // =======================
-  // VIENTO
-  // =======================
-  let vientoVel = metar.wind_speed?.value || 0;
-
-  let vientoTexto = "🌬️ Sin datos de viento";
-
-  if (vientoVel > 0) {
-    if (vientoVel < 10) vientoTexto = "🌬️ Viento leve";
-    else if (vientoVel < 20) vientoTexto = "🌬️ Viento moderado";
-    else vientoTexto = "🌬️ Viento fuerte";
-  }
-
-  // =======================
-  // NUBES
-  // =======================
-  let nubesTexto = "☀️ Cielo despejado";
-
-  if (metar.clouds && metar.clouds.length > 0) {
-    const capa = metar.clouds[0];
-
-    if (capa.type === "FEW") nubesTexto = "🌤️ Pocas nubes";
-    else if (capa.type === "SCT") nubesTexto = "⛅ Nubosidad dispersa";
-    else if (capa.type === "BKN") nubesTexto = "☁️ Nubosidad significativa";
-    else if (capa.type === "OVC") nubesTexto = "☁️ Cielo cubierto";
-  }
-
-  // =======================
-  // FENÓMENOS
-  // =======================
-  const raw = metar.raw;
-
-  if (raw.includes("TS")) {
-    resumenTexto = "Tormenta en la zona";
-    icono = "⛈️";
-  } else if (raw.includes("RA")) {
-    resumenTexto = "Condiciones lluviosas";
-    icono = "🌧️";
-  } else if (raw.includes("FG")) {
-    resumenTexto = "Niebla presente";
-    icono = "🌫️";
-  }
-
-  // =======================
-  // UI FINAL
-  // =======================
   document.getElementById("textoStatus").innerHTML = `
-    <div style="font-size:18px;">
-      ${icono} ${resumenTexto}
+    <div style="font-size:26px;font-weight:700;">
+      ${categoryInfo.icon} ${category}
     </div>
-    <div style="font-size:13px; margin-top:5px; opacity:0.8;">
-      ${vientoTexto} • ${visTexto} • ${nubesTexto}
+    <div style="margin-top:6px;font-size:14px;opacity:.8;">
+      ${categoryInfo.text}
     </div>
   `;
 
-  // RAW (opcional)
+  document.getElementById("resumen").innerHTML = `
+    <div class="item"><span>🌬️</span>${windDir}° ${wind}kt</div>
+    <div class="item"><span>👁️</span>${vis} m</div>
+    <div class="item"><span>☁️</span>${ceiling} ft</div>
+    <div class="item"><span>🌡️</span>${temp}° / ${dew}°</div>
+    <div class="item"><span>🧭</span>${qnh}</div>
+  `;
+
   document.getElementById("metar").innerText = metar.raw || "";
   document.getElementById("taf").innerText = taf?.raw || "Sin TAF";
+
+  renderAlerts(metar, wind, vis);
+}
+
+// ======================
+// CATEGORÍA DE VUELO
+// ======================
+function getFlightCategory(vis, ceiling) {
+  if (vis < 3000 || ceiling < 1000) return "IFR";
+  if (vis < 5000 || ceiling < 3000) return "MVFR";
+  return "VFR";
+}
+
+function getCategoryVisual(cat) {
+  if (cat === "VFR") {
+    return {
+      icon: "🟢",
+      text: "Condiciones favorables para volar"
+    };
+  }
+
+  if (cat === "MVFR") {
+    return {
+      icon: "🟡",
+      text: "Precaución operativa"
+    };
+  }
+
+  return {
+    icon: "🔴",
+    text: "Condiciones limitadas"
+  };
+}
+
+// ======================
+// VISIBILIDAD
+// ======================
+function getVisibility(metar) {
+  if (metar.visibility?.value) {
+    return metar.visibility.value;
+  }
+
+  return 9999;
+}
+
+// ======================
+// TECHO
+// ======================
+function getCeiling(metar) {
+  if (!metar.clouds || metar.clouds.length === 0) {
+    return 9999;
+  }
+
+  const capas = metar.clouds.filter(
+    c => c.type === "BKN" || c.type === "OVC"
+  );
+
+  if (capas.length === 0) return 9999;
+
+  return capas[0].altitude * 100;
+}
+
+// ======================
+// ALERTAS
+// ======================
+function renderAlerts(metar, wind, vis) {
+  let html = "";
+
+  const raw = metar.raw || "";
+
+  if (wind >= 20) {
+    html += `<div class="alerta">🌬️ Viento fuerte</div>`;
+  }
+
+  if (vis < 3000) {
+    html += `<div class="alerta">👁️ Baja visibilidad</div>`;
+  }
+
+  if (raw.includes("TS")) {
+    html += `<div class="alerta">⛈️ Tormenta reportada</div>`;
+  }
+
+  if (raw.includes("FG")) {
+    html += `<div class="alerta">🌫️ Niebla presente</div>`;
+  }
+
+  if (html === "") {
+    html = `<div class="ok">✅ Sin alertas relevantes</div>`;
+  }
+
+  document.getElementById("alertas").innerHTML = html;
 }
